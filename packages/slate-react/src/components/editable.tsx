@@ -151,7 +151,8 @@ export const Editable = (props: EditableProps) => {
     if (
       hasDomSelection &&
       newDomRange &&
-      isRangeEqual(domSelection.getRangeAt(0), newDomRange)
+      (isRangeEqual(domSelection.getRangeAt(0), newDomRange) ||
+        (selection && !Range.isCollapsed(selection)))
     ) {
       return
     }
@@ -159,12 +160,21 @@ export const Editable = (props: EditableProps) => {
     // Otherwise the DOM selection is out of sync, so update it.
     const el = ReactEditor.toDOMNode(editor, editor)
     state.isUpdatingSelection = true
-    domSelection.removeAllRanges()
+    if (selection) {
+      domSelection.removeAllRanges()
+    }
 
     if (newDomRange) {
       domSelection.addRange(newDomRange!)
       const leafEl = newDomRange.startContainer.parentElement!
-      scrollIntoView(leafEl, { scrollMode: 'if-needed' })
+      if (
+        selection &&
+        Range.isCollapsed(selection) &&
+        leafEl.hasAttribute('data-slate-zero-width') &&
+        leafEl.getAttribute('data-slate-zero-width') !== 'z'
+      ) {
+        scrollIntoView(leafEl, { scrollMode: 'if-needed' })
+      }
     }
 
     setTimeout(() => {
