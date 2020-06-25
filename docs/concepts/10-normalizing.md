@@ -14,7 +14,9 @@ Slate editors come with a few built-in constraints out of the box. These constra
 
 3. **Block nodes can only contain other blocks, or inline and text nodes.** For example, a `paragraph` block cannot have another `paragraph` block element _and_ a `link` inline element as children at the same time. The type of children allowed is determined by the first child, and any other non-conforming children are removed. This ensures that common richtext behaviors like "splitting a block in two" function consistently.
 
-4. **The top-level editor node can only contain block nodes.** If any of the top-level children are inline or text nodes they will be removed. This ensures that there are always block nodes in the editor so that behaviors like "splitting a block in two" work as expected.
+4. **Inline nodes cannot be the first or last child of a parent block, nor can it be next to another inline node in the children array.** If this is the case, an empty text node will be added to correct this to be in complience with the constraint.
+
+5. **The top-level editor node can only contain block nodes.** If any of the top-level children are inline or text nodes they will be removed. This ensures that there are always block nodes in the editor so that behaviors like "splitting a block in two" work as expected.
 
 These default constraints are all mandated because they make working with Slate documents _much_ more predictable.
 
@@ -29,7 +31,7 @@ To do this, you extend the `normalizeNode` function on the editor. The `normaliz
 For example here's a plugin that ensures `paragraph` blocks only have text or inline elements as children:
 
 ```js
-import { Element, Node } from 'slate'
+import { Transforms, Element, Node } from 'slate'
 
 const withParagraphs = editor => {
   const { normalizeNode } = editor
